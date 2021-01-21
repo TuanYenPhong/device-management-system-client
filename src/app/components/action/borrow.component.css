@@ -1,0 +1,83 @@
+.ngx-pagination {
+  padding-left: 0px !important;
+  margin: auto !important;
+  width: 50% !important;
+  padding: 10px !important;
+}
+
+.ngx-pagination .current,
+.btn-info {
+  background: #17a2b8 !important;
+  border: transparent !important;
+  border-radius: 20px !important;
+}
+
+.ngx-pagination .current:hover {
+  background: #17a2b8 !important;
+  border-radius: 20px !important;
+  border: transparent !important;
+}
+
+._scrollmenu table {
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+  width: 100%;
+}
+._scrollmenu tbody {
+  display: table;
+  width: 100%;
+}
+button{
+  text-decoration:none;
+}
+
+.custom-typeahead .dropdown-menu {
+  width: 94%;
+}
+
+._editForm form{
+    margin-left: 25%;
+    padding: 15px;
+    /* background-color: #f2f2f2; */
+    /* box-shadow: 3px 5px 10px -5px #cccccc; */
+
+}
+/* .modal.fade {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+} */
+
+._editModal form{
+  /* margin-left: 25%; */
+  /* padding: 10px; */
+}
+
+.modal-body{
+  margin: auto;
+  width: 100%;
+  padding-left: 15px;
+}
+
+._editModal{
+  margin-left: 20px;
+}
+.action{
+  text-align: center;
+}
+
+p{
+  text-align: center;
+  text-shadow: #cccccc;
+  font-weight: 100;
+  font-size: large;
+  font-style: inherit;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  color: #3399ff;
+}
+
+._actionModel{
+  margin: auto;
+  width: 20%;
+}

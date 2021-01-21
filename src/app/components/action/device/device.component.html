@@ -1,0 +1,618 @@
+<div [hidden]="!tableHidden">
+  <div *ngIf="!checkModal" class="card my-5">
+    <div class="card-body _scrollmenu">
+
+      <label>Search: <input type="text" [(ngModel)] = "query"></label>
+      <button
+      *ngIf="typeDevice > 0"
+      type="button"
+      class="btn btn-primary"
+      (click)="hiddenForm()">
+        <i class="fa fa-plus" aria-hidden="true"></i>
+      </button>
+
+      <table class="table table-bordered table-striped">
+        <tbody>
+          <tr>
+            <th scope="col">Action</th>
+            <th scope="col">STT</th>
+            <th scope="col">Loại device</th>
+            <th scope="col">Mã device</th>
+            <th scope="col">Mô tả</th>
+            <th scope="col">Ngày nhập kho</th>
+            <th scope="col">Thời hạn bảo hành</th>
+            <th scope="col">Đơn vị cung cấp</th>
+            <th scope="col">Thời gian bàn giao lần đầu</th>
+          </tr>
+          <tr
+            *ngFor="
+              let d of dataDevice | searchfilter: query
+                | paginate: { itemsPerPage: 4, currentPage: p };
+              let i = index;
+            "
+          >
+          <td class="text-center">
+            <button (click)="staticModal.show();showInformationDevice(d.id)">
+              <i class="fa fa-eye" style="font-size: 25px"></i>
+            </button>
+            <button *ngIf="typeDevice > 0" (click)="staticModal.show();showEditDevice(d.id)">
+              <i
+                class="fa fa-pencil-square-o"
+                aria-hidden="true"
+                style="font-size: 25px"
+              ></i>
+            </button>
+            <button *ngIf="typeDevice > 0" (click)="deleteDevice(d.id)">
+              <i class="fa fa-trash-o" style="font-size: 25px"></i>
+            </button>
+          </td>
+            <td></td>
+            <td>{{d.typeDevice}}</td>
+            <td>{{d.codeDevice}}</td>
+            <td>{{d.description}}</td>
+            <td>{{d.inputDay}}</td>
+            <td>{{d.guarantee}}</td>
+            <td>{{ d.supplyUnit }}</td>
+            <td>{{d.firstTime}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <pagination-controls (pageChange)="p = $event"></pagination-controls>
+  </div>
+
+
+</div>
+
+<div
+    class="modal fade"
+    bsModal
+    #staticModal="bs-modal"
+    [config]="{ backdrop: 'static' }"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="dialog-static-name"
+  >
+    <div *ngIf="checkModal" class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Chỉnh sửa quản lí thiết bị</h3>
+        </div>
+        <div class="modal-body">
+            <div class="col-md-9">
+              <form>
+                <fieldset>
+                  <div class="row">
+                  <div class="col form-group">
+                    <label for="Name"
+                      ><span class="req">* </span> Loại thiết bị:
+                    </label>
+
+                    <input
+                      required
+                      type="text"
+                      [(ngModel)]="device.typeDevice"
+                      name="typeDevice"
+                      id="name"
+                      class="form-control phone"
+                      maxlength="28"
+                      placeholder="Nhập loại thiết bị..."
+                    />
+                  </div>
+
+                  <div class="col form-group">
+                    <label for="Name"
+                      ><span class="req">* </span> Mã thiết bị:
+                    </label>
+
+                    <input
+                      required
+                      type="text"
+                      [(ngModel)]="device.codeDevice"
+                      name="codeDevice"
+                      id="name"
+                      class="form-control phone"
+                      maxlength="28"
+                      placeholder="Nhập mã thiết bị..."
+                    />
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col form-group">
+                    <label for="Name"
+                      ><span class="req">* </span> Thời hạn bảo hành:
+                    </label>
+
+                    <input
+                      required
+                      type="text"
+                      [(ngModel)]="device.guarantee"
+                      name="guarantee"
+                      id="name"
+                      class="form-control phone"
+                      maxlength="28"
+                      placeholder="Nhập thời hạn bảo hành..."
+                    />
+                  </div>
+
+                  <div class="col form-group">
+                    <label for="Name"
+                      ><span class="req">* </span> Đơn vị cung cấp:
+                    </label>
+
+                    <input
+                      required
+                      type="text"
+                      [(ngModel)]="device.supplyUnit"
+                      name="supplyUnit"
+                      id="name"
+                      class="form-control phone"
+                      maxlength="28"
+                      placeholder="Enter your supplyUnit..."
+                    />
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col form-group">
+                    <label for="date-input"
+                      >Ngày nhập kho</label
+                    >
+
+                      <input
+                        [ngModel]="device.inputDay | date: 'yyyy-MM-dd'"
+                        (ngModelChange)="device.inputDay = $event"
+                        class="form-control"
+                        id="toDate"
+                        type="date"
+                        name="inputDay"
+                        placeholder="date"
+                      />
+
+                  </div>
+
+                  <div class="col form-group">
+                    <label for="date-input"
+                      >Thời gian bàn giao lần đầu</label
+                    >
+                      <input
+                        [ngModel]="device.firstTime | date: 'yyyy-MM-dd'"
+                        (ngModelChange)="device.firstTime = $event"
+                        class="form-control"
+                        id="toDate"
+                        type="date"
+                        name="firstTime"
+                        placeholder="date"
+                      />
+
+                  </div>
+                </div>
+                  <!-- <div class="form-group">
+                    <label for="website">Status:</label>
+                    <select
+                      [(ngModel)]="repair.status"
+                      [ngModelOptions]="{standalone: true}"
+                      class="form-control"
+                      name="status"
+                    >
+                      <option
+                        *ngFor="let s of status"
+                        [selected]="status[0].id == 0"
+                        [(ngValue)]="s.id"
+                      >
+                        {{ s.namestatus }}
+                      </option>
+                    </select>
+                  </div> -->
+
+                  <!-- customer -->
+                  <div class="row">
+                  <div *ngIf="typeDevice == 4" class="col form-group">
+                    <label for="date-input"
+                      >Date Issue</label
+                    >
+                      <input
+                        [ngModel]="device.dateIssue | date: 'yyyy-MM-dd'"
+                        (ngModelChange)="device.dateIssue = $event"
+                        class="form-control"
+                        id="toDate"
+                        type="date"
+                        name="dateIssue"
+                        placeholder="date"
+                      />
+
+                  </div>
+
+                  <div *ngIf="typeDevice == 4" class="col form-group">
+                    <label for="date-input"
+                      >Date Return</label
+                    >
+                      <input
+                        [ngModel]="device.dateReturn | date: 'yyyy-MM-dd'"
+                        (ngModelChange)="device.dateReturn = $event"
+                        class="form-control"
+                        id="toDate"
+                        type="date"
+                        name="dateReturn"
+                        placeholder="date"
+                      />
+
+                  </div>
+                </div>
+                  <div *ngIf="typeDevice == 4" class="form-group">
+                    <label for="date-input"
+                      >Date Return Customer</label
+                    >
+                      <input
+                        [ngModel]="device.dateReturnCustomer | date: 'yyyy-MM-dd'"
+                        (ngModelChange)="device.dateReturnCustomer = $event"
+                        class="form-control"
+                        id="toDate"
+                        type="date"
+                        name="dateReturnCustomer"
+                        placeholder="date"
+                      />
+
+                  </div>
+
+                  <!-- work = 1 -->
+                  <div class="row">
+                  <div *ngIf="typeDevice == 1" class="col form-group">
+                    <label for="date-input"
+                      >Date Range</label
+                    >
+                      <input
+                        [ngModel]="device.dateRange | date: 'yyyy-MM-dd'"
+                        (ngModelChange)="device.dateRange = $event"
+                        class="form-control"
+                        id="toDate"
+                        type="date"
+                        name="dateRange"
+                        placeholder="date"
+                      />
+
+                  </div>
+
+                  <div *ngIf="typeDevice == 1" class="col form-group">
+                    <label for="Name"
+                      ><span class="req">* </span> Thiết bị đi kèm:
+                    </label>
+
+                    <input
+                      required
+                      type="text"
+                      [(ngModel)]="device.deviceInclude"
+                      name="deviceInclude"
+                      id="name"
+                      class="form-control phone"
+                      maxlength="28"
+                      placeholder="Nhập thời ..."
+                    />
+                  </div>
+                </div>
+                  <div *ngIf="typeDevice == 1" class="col form-group">
+                    <label for="Name"
+                      ><span class="req">* </span> Người quản lí:
+                    </label>
+
+                    <input
+                      required
+                      type="text"
+                      [(ngModel)]="device.deviceManager"
+                      name="deviceManager"
+                      id="name"
+                      class="form-control phone"
+                      maxlength="28"
+                      placeholder="Nhập thời hạn bảo hành..."
+                    />
+                  </div>
+
+                  <div class="form-group row">
+                    <label class="col-md-3 col-form-label" for="textarea-input"
+                      >Mô tả</label>
+                    <div class="col-md-6">
+                      <textarea
+                        [(ngModel)]="device.description"
+                        id="textarea-input"
+                        name="textarea-input"
+                        rows="9"
+                        class="form-control"
+                        placeholder="Nhập mô tả.."
+                      ></textarea>
+                    </div>
+                  </div>
+                </fieldset>
+              </form>
+            </div>
+
+        </div>
+        <div class="modal-body _actionModel">
+          <button
+            *ngIf="!checkShowInfo"
+            type="button"
+            class="btn btn-primary"
+            (click)="staticModal.hide();changeEdit()"
+          >
+            Yes
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger"
+            (click)="staticModal.hide();decline()"
+          >
+            No
+          </button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Form Thêm thiết bị làm việc -->
+<div class="container _editForm" [hidden]="!formHidden">
+    <div class="col-md-9">
+      <form>
+        <p *ngIf="typeDevice==4">Tạo mới thiết bị khách hàng</p>
+        <p *ngIf="typeDevice==3">Tạo mới thiết bị khác</p>
+        <p *ngIf="typeDevice==2">Tạo mới thiết bị test</p>
+        <p *ngIf="typeDevice==1">Tạo mới thiết bị làm việc</p>
+        <fieldset>
+          <div class="row">
+          <div class="col form-group">
+            <label for="Name"
+              ><span class="req">* </span> Loại thiết bị :
+            </label>
+
+            <input
+              required
+              type="text"
+              [(ngModel)]="device.typeDevice"
+              name="typeDevice"
+              id="name"
+              class="form-control phone"
+              maxlength="28"
+              placeholder="Enter your type device..."
+            />
+          </div>
+
+          <div class="col form-group">
+            <label for="Name"
+              ><span class="req">* </span> Mã thiết bị:
+            </label>
+
+            <input
+              required
+              type="text"
+              [(ngModel)]="device.codeDevice"
+              name="codeDevice"
+              id="name"
+              class="form-control phone"
+              maxlength="28"
+              placeholder="Enter your code device..."
+            />
+          </div>
+          </div>
+          <!-- <div class="form-group">
+            <label for="website">Status:</label>
+            <select
+              [(ngModel)]="repair.status"
+              class="form-control"
+              name="status"
+            >
+              <option
+                *ngFor="let s of status"
+                [(ngValue)]="s.id"
+              >
+                {{ s.namestatus }}
+              </option>
+            </select>
+          </div>   -->
+          <div class="row">
+          <div class="col form-group">
+            <label for="date-input"
+              >Ngày nhập kho:</label
+            >
+            <div>
+              <input
+                [(ngModel)]="device.inputDay"
+                class="form-control"
+                id="inputDay"
+                type="date"
+                name="inputDay"
+                placeholder="date"
+              />
+            </div>
+          </div>
+
+          <div class="col form-group">
+            <label for="Name"
+              ><span class="req">* </span> Thời hạn bảo hành:
+            </label>
+
+            <input
+              required
+              type="text"
+              [(ngModel)]="device.guarantee"
+              name="guarantee"
+              id="name"
+              class="form-control phone"
+              maxlength="28"
+              placeholder="Enter your guarantee..."
+            />
+          </div>
+        </div>
+          <div class="row">
+          <div class="col form-group">
+            <label for="Name"
+              ><span class="req">* </span> Đơn vị cung cấp:
+            </label>
+
+            <input
+              required
+              type="text"
+              [(ngModel)]="device.supplyUnit"
+              name="supplyUnit"
+              id="name"
+              class="form-control phone"
+              maxlength="28"
+              placeholder="Enter your supplyUnit..."
+            />
+          </div>
+
+          <div class="col form-group">
+            <label for="date-input"
+              >Thời gian bàn giao lần đầu:</label
+            >
+            <div>
+              <input
+                [(ngModel)]="device.firstTime"
+                class="form-control"
+                id="firstTime"
+                type="date"
+                name="firstTime"
+                placeholder="date"
+              />
+            </div>
+          </div>
+        </div>
+          <!-- device customer -->
+          <div class="row">
+          <div *ngIf="typeDevice == 4" class="col form-group">
+            <label for="date-input"
+              >Ngày bàn giao:</label
+            >
+            <div>
+              <input
+                [(ngModel)]="device.dateIssue"
+                class="form-control"
+                id="dateIssue"
+                type="date"
+                name="dateIssue"
+                placeholder="date"
+              />
+            </div>
+          </div>
+
+          <div *ngIf="typeDevice == 4" class="col form-group">
+            <label for="date-input"
+              >Ngày thu hồi:</label
+            >
+            <div>
+              <input
+                [(ngModel)]="device.dateReturn"
+                class="form-control"
+                id="dateReturn"
+                type="date"
+                name="dateReturn"
+                placeholder="date"
+              />
+            </div>
+          </div>
+          </div>
+
+          <div *ngIf="typeDevice == 4" class="form-group">
+            <label for="date-input"
+              >Ngày trả khách hàng:</label
+            >
+            <div>
+              <input
+                [(ngModel)]="device.dateReturnCustomer"
+                class="form-control"
+                id="dateReturnCustomer"
+                type="date"
+                name="dateReturnCustomer"
+                placeholder="date"
+              />
+            </div>
+          </div>
+
+          <!-- device work -->
+          <div class="row">
+          <div *ngIf="typeDevice == 1" class="col form-group">
+            <label for="Name"
+              ><span class="req">* </span> Thiết bị đi kèm :
+            </label>
+
+            <input
+              required
+              type="text"
+              [(ngModel)]="device.deviceInclude"
+              name="deviceInclude"
+              id="name"
+              class="form-control phone"
+              maxlength="28"
+              placeholder="Enter your ..."
+            />
+          </div>
+
+          <div *ngIf="typeDevice == 1" class="col form-group">
+            <label for="date-input"
+              >Ngày cấp gần nhất:</label
+            >
+            <div>
+              <input
+                [(ngModel)]="device.dateRange"
+                class="form-control"
+                id="dateRange"
+                type="date"
+                name="dateRange"
+                placeholder="date"
+              />
+            </div>
+          </div>
+          </div>
+          <div *ngIf="typeDevice == 1" class="form-group">
+            <label for="Name"
+              ><span class="req">* </span> Người quản lí/ vị trí :
+            </label>
+
+            <input
+              required
+              type="text"
+              [(ngModel)]="device.deviceManager"
+              name="deviceManager"
+              id="name"
+              class="form-control phone"
+              maxlength="28"
+              placeholder="Enter your ..."
+            />
+          </div>
+
+          <!-- chung -->
+          <div class="form-group ">
+            <label for="textarea-input"
+              >Mô tả:</label
+            >
+            <div>
+              <textarea
+                [(ngModel)]="device.description"
+                id="textarea-input"
+                name="textarea-input"
+                rows="9"
+                class="form-control"
+                placeholder="Mô tả.."
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="form-group action">
+            <input
+              class="btn btn-success"
+              type="submit"
+              name="submit_reg"
+              value="Save"
+              (click)="createDevice()"
+            />
+            <input
+              class="btn btn-success"
+              type="submit"
+              name="submit_reg"
+              value="Cancel"
+              (click)="cancelForm()"
+            />
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+
