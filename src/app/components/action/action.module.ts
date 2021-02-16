@@ -18,6 +18,7 @@ import { StaticsComponent } from './statics/statics.component';
 import { DevicePersionComponent } from './device-persion/device-persion.component';
 
 
+
 @NgModule({
   imports: [
     CommonModule,

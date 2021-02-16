@@ -10,7 +10,6 @@ import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
   suppressScrollX: true
 };
-
 import { AppComponent } from './app.component';
 
 // Import containers
@@ -20,6 +19,8 @@ import { P404Component } from './views/error/404.component';
 import { P500Component } from './views/error/500.component';
 
 import { LoginComponent } from './components/login/login.component';
+
+import {ResetPasswordComponent} from  './components/action/reset-password/reset-password.component';
 
 import { AuthenModule } from './authentication/authen.module';
 
@@ -44,7 +45,7 @@ import { TabsModule } from 'ngx-bootstrap/tabs';
 import { ChartsModule } from 'ng2-charts';
 import { HttpClientModule } from '@angular/common/http';
 import { IonicModule } from '@ionic/angular';
-import { FormsModule }   from '@angular/forms';
+import { FormsModule, ReactiveFormsModule }   from '@angular/forms';
 
 @NgModule({
   imports: [
@@ -63,7 +64,8 @@ import { FormsModule }   from '@angular/forms';
     HttpClientModule,
     IonicModule.forRoot(),
     FormsModule,
-    AuthenModule
+    AuthenModule,
+    ReactiveFormsModule
   ],
   declarations: [
     AppComponent,
@@ -71,6 +73,7 @@ import { FormsModule }   from '@angular/forms';
     P404Component,
     P500Component,
     LoginComponent,
+    ResetPasswordComponent
   ],
   providers: [
     {

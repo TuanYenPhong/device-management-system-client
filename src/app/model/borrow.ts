@@ -11,7 +11,9 @@ export class Borrow {
 
   nameBorrow: string;
 
-  idDevice: string;
+  idDevice: number;
+
+  codeDevice: string;
 
   typeDevice: string;
 
@@ -24,6 +26,8 @@ export class Borrow {
   modifiedDate: Date;
 
   idDepartment: number;
+
+  userId: number;
 
   status: number;
   deparmentBorrow: {
@@ -38,4 +42,10 @@ export class DP{
   constructor(){}
   name: string;
   region: string;
+}
+
+export class DataBorrow{
+  borrows: any;
+  outOfDate: number;
+  deadline: number;
 }

@@ -1,1 +1,335 @@
-<p>statics works!</p>
+<!-- show ra cac truong de search -->
+<div>
+    <!-- <span>Thống kê theo</span> -->
+    <div style="width: 25%;" class="col form-group">
+        <label style="font-size: 20px;">Thống kê theo loại</label>
+        <select [(ngModel)]="defaultRole.type" 
+                [ngModelOptions]="{standalone: true}"
+                (ngModelChange)="clickRepair($event)" 
+                class="form-control" name="type"
+                >
+            <option *ngFor="let s of typeStatics"
+                    [(ngValue)]="s.id">
+                {{ s.typeStatic }}
+            </option>
+        </select>
+    </div>
+
+    <div>
+        <!-- cac truong device -->
+        <div [hidden] = "!(type == 0)">
+          <div class="container">
+            <div class="col-md">
+              <form (keydown.enter)="$event.preventDefault()">
+                <p>Nhập các trường để thống kê</p>
+                <fieldset>
+                <div class="row">
+
+                  <div class="col form-group">
+                      <label for="Name"
+                        ><span class="req"></span> Type Device:
+                      </label>
+
+                      <input
+                        required
+                        type="text"
+                        [(ngModel)]="deviceSearch.typeDevice"
+                        name="typeDevice"
+                        id="name"
+                        class="form-control phone"
+                        maxlength="28"
+                        placeholder="Nhập loại thiết bị..."
+                        />
+                    </div>
+
+                  <div class="col form-group">
+                    <label for="Name"
+                      ><span class="req"></span> Code Device:
+                    </label>
+
+                    <input
+                      required
+                      type="text"
+                      [(ngModel)]="deviceSearch.codeDevice"
+                      name="codeDevice"
+                      id="name"
+                      class="form-control phone"
+                      maxlength="28"
+                      placeholder="Nhập mã thiết bị..."
+                      />
+                  </div>
+                </div>
+
+                  <div class="form-group action">
+                    <input
+                      class="btn btn-success"
+                      type="submit"
+                      name="submit_reg"
+                      value="Search"
+                      (click)="searchDevice()"
+                    />
+
+                    <input
+                      class="btn btn-success"
+                      type="submit"
+                      name="submit_reg"
+                      value="Clear Filter"
+                      (click)="clearFilterSearchDevice()"
+                    />
+
+                    <input
+                      class="btn btn-success"
+                      type="submit"
+                      name="submit_reg"
+                      value="Export Excel"
+                      (click)="exportExcelDevice()"
+                    />
+
+                  </div>
+                </fieldset>
+              </form>
+          </div>
+      </div>
+        </div>
+
+        <!-- cac truong repair -->
+        <div [hidden] = "!(type == 1)">
+            <div class="container">
+                  <div class="col-md">
+                    <form (keydown.enter)="$event.preventDefault()">
+                      <p>Nhập các trường để thống kê</p>
+                      <fieldset>
+                      <div class="row">
+
+                        <div class="col form-group">
+                            <label for="Name"
+                              ><span class="req"></span> Type Device:
+                            </label>
+  
+                            <input
+                              required
+                              type="text"
+                              [(ngModel)]="repairSearch.typeDevice"
+                              name="typeDevice"
+                              id="name"
+                              class="form-control phone"
+                              maxlength="28"
+                              placeholder="Nhập loại thiết bị..."
+                              />
+                          </div>
+
+                        <div class="col form-group">
+                          <label for="Name"
+                            ><span class="req"></span> Code Device:
+                          </label>
+
+                          <input
+                            required
+                            type="text"
+                            [(ngModel)]="repairSearch.codeDevice"
+                            name="codeDevice"
+                            id="name"
+                            class="form-control phone"
+                            maxlength="28"
+                            placeholder="Nhập mã thiết bị..."
+                            />
+                        </div>
+              
+                        <div class="col form-group">
+                          <label for="website">Status:</label>
+                          <select
+                            [(ngModel)]="repairSearch.status"
+                            class="form-control"
+                            name="status"
+                          >
+                            <option
+                              *ngFor="let s of statusRepair"
+                              [(ngValue)]="s.id"
+                            >
+                              {{ s.namestatus }}
+                            </option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col form-group">
+                          <label for="date-input"
+                            >From date repair:</label
+                          >
+                          <div>
+                            <input
+                              [(ngModel)]="repairSearch.fromDateRepair"
+                              class="form-control"
+                              id="fromDateRepair"
+                              type="date"
+                              name="fromDateRepair"
+                              placeholder="date"
+                            />
+                          </div>
+                        </div>
+
+                        <div class="col form-group">
+                            <label for="date-input"
+                              >To date repair:</label
+                            >
+                            <div>
+                              <input
+                                [(ngModel)]="repairSearch.toDateRepair"
+                                class="form-control"
+                                id="toDateRepair"
+                                type="date"
+                                name="toDateRepair"
+                                placeholder="date"
+                              />
+                            </div>
+                          </div>
+              
+                        <div class="col form-group">
+                          <label for="date-input"
+                            >From date finish:</label
+                          >
+                          <div>
+                            <input
+                              [(ngModel)]="repairSearch.toDateFinish"
+                              class="form-control"
+                              id="toDateFinish"
+                              type="date"
+                              name="toDateFinish"
+                              placeholder="date"
+                            />
+                          </div>
+                        </div>
+
+                        <div class="col form-group">
+                            <label for="date-input"
+                              >From date finish:</label
+                            >
+                            <div>
+                              <input
+                                [(ngModel)]="repairSearch.fromDateFinish"
+                                class="form-control"
+                                id="fromDateFinish"
+                                type="date"
+                                name="fromDateFinish"
+                                placeholder="date"
+                              />
+                            </div>
+                          </div>
+
+                      </div>
+                        
+              
+                        <div class="form-group action">
+                          <input
+                            class="btn btn-success"
+                            type="submit"
+                            name="submit_reg"
+                            value="Search"
+                            (click)="searchRepair()"
+                          />
+
+                          <input
+                            class="btn btn-success"
+                            type="submit"
+                            name="submit_reg"
+                            value="Clear Filter"
+                            (click)="clearFilterSearchRepair()"
+                          />
+
+                          <input
+                            class="btn btn-success"
+                            type="submit"
+                            name="submit_reg"
+                            value="Export Excel"
+                            (click)="exportExcelRepair()"
+                          />
+
+                        </div>
+                      </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- cac truong borrow -->
+        <div [hidden] = "!(type == 2)">
+            <!-- <div>
+                <input
+                  [(ngModel)]="groupSelected"
+                  [typeahead]="device"
+                  typeaheadOptionField="codeDevice"
+                  value="{{groupSelected}}"
+                  [ngModelOptions]="{standalone: true}"
+                  placeholder="borrows"
+              />
+              </div> -->
+        </div>
+
+    </div>
+</div>
+
+<!-- thống kê theo thiết bị repair -->
+<div [hidden] = "!(type == 1)">
+    <div class="card my-5">
+        <div class="card-body _scrollmenu">
+            <table class="table table-bordered table-striped">
+                <tbody>
+                    <tr>
+                        <th scope="col">STT</th>
+                        <th scope="col">Loại device</th>
+                        <th scope="col">Mã device</th>
+                        <th scope="col">Nội dung</th>
+                        <th scope="col">Ngày sửa</th>
+                        <th scope="col">Ngày hoàn thành</th>
+                        <th scope="col">Trạng thái</th>
+                    </tr>
+                    <tr *ngFor="let d of dataRepair | paginate: { itemsPerPage: 8, currentPage: p };
+                                let i = index;">
+                                <td>{{((p + 1) * 8 + i + 1)-16}}</td>
+                                <td>{{d.entities.typeDevice}}</td>
+                                <td>{{d.entities.codeDevice}}</td>
+                                <td>{{d.description}}</td>
+                                <td>{{d.dateRepair}}</td>
+                                <td>{{d.dateFinish}}</td>
+                                <td>{{ statusRepair[d.status-1].namestatus }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <pagination-controls (pageChange)="p = $event"></pagination-controls>
+    </div>
+</div>
+
+<!-- thống kê thiết bị -->
+<div [hidden] = "!(type == 0)">
+  <div class="card my-5">
+      <div class="card-body _scrollmenu">
+          <table class="table table-bordered table-striped">
+              <tbody>
+                  <tr>
+                    <th scope="col">STT</th>
+                    <th scope="col">Loại device</th>
+                    <th scope="col">Mã device</th>
+                    <th scope="col">Mô tả</th>
+                    <th scope="col">Ngày nhập kho</th>
+                    <th scope="col">Thời hạn bảo hành</th>
+                    <th scope="col">Đơn vị cung cấp</th>
+                    <th scope="col">Thời gian bàn giao lần đầu</th>
+                  </tr>
+                  <tr *ngFor="let d of dataDevice | paginate: { itemsPerPage: 8, currentPage: p };
+                              let i = index;">
+                            <td>{{((p + 1) * 8 + i + 1)-16}}</td>
+                            <td>{{d.typeDevice}}</td>
+                            <td>{{d.codeDevice}}</td>
+                            <td>{{d.description}}</td>
+                            <td>{{d.inputDay}}</td>
+                            <td>{{d.guarantee}}</td>
+                            <td>{{ d.supplyUnit }}</td>
+                            <td>{{d.firstTime}}</td>
+                  </tr>
+              </tbody>
+          </table>
+      </div>
+      <pagination-controls (pageChange)="p = $event"></pagination-controls>
+  </div>
+</div>

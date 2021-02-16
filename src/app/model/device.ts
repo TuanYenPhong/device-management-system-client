@@ -6,21 +6,29 @@ export class Device {
   typeDevice:string;
   codeDevice:string;
   description:string;
-  inputDay:Date;
+  status:number;
+  states:number;
+
+  //phan device
+  inputDay:string;
   guarantee:string;
   supplyUnit:string;
-  firstTime:Date;
-
-  //customer device
-  dateIssue:Date;
-  dateReturn:Date;
-  dateReturnCustomer:Date;
+  firstTime:string;
 
   //device work
   deviceInclude:string;
-  dateRange:Date;
-  deviceManager:string;
+  dateRange:string;
+  additionalInformation:string;
+
+  //customer device
+  dateReceiveDevice:string;
+  dateIssue:string;
+  dateReturn:string;
+  dateReturnCustomer:string;
 
   //phân loại thiết bị
   classificationDevice:number;
+
+  //dung chung
+  deviceManager:string;
 }

@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { HttpHeaders  } from '@angular/common/http';
 
 const TOKEN_KEY = 'auth-token';
 const USER_KEY = 'auth-user';
@@ -30,26 +29,4 @@ export class TokenStorageService {
   public getUser(): any {
     return JSON.parse(JSON.stringify(localStorage.getItem(USER_KEY)));
   }
-
-  public sendTokenServer(): any {
-    
-    const header = {
-      headers : new HttpHeaders().set(
-        "Authorization",
-        "Bearer " + JSON.parse(localStorage.getItem("auth-user"))["token"]
-      ),
-      responseType:'text' as 'json'
-    }
-    //console.log(JSON.parse(localStorage.getItem("auth-user"))["token"]);
-    return header;
-
-    // const token = JSON.parse(localStorage.getItem("auth-user"))["token"];
-    // const header = new Headers({ 'Authorization': `Bearer ${token}` });
-    // const options = {
-    //    headers: header,
-    // };
-    // console.log(JSON.parse(localStorage.getItem("auth-user"))["token"]);
-    // return options;
-  }
-  
 }

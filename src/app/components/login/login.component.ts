@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AuthService } from '../../service/authentication/auth.service';
 import { TokenStorageService } from '../../service/authentication/token-storage.service';
-import { Router  } from '@angular/router';
+import { ResetPasswordService } from '../../service/actionservice/reset-password.service'
 
 @Component({
   selector: 'app-dashboard',
@@ -10,48 +12,91 @@ import { Router  } from '@angular/router';
 })
 export class LoginComponent implements OnInit {
 
-  form: any = {};
+
+  // form: any = {};
+  // form = new FormGroup({
+  //   email: new FormControl('', [
+  //     Validators.required,
+  //     Validators.email
+  //   ])
+  //   ,
+  //   password: new FormControl('', [
+  //     Validators.required,
+  //     Validators.minLength(6)
+  //   ])
+  // })
+
   isLoggedIn = false;
-  isLoginFailed = false;
+  checkUsername = false
   errorMessage = '';
   roles: string[] = [] ;
 
-  constructor(private router: Router ,private authService: AuthService, private tokenStorage: TokenStorageService) {
-    if(this.tokenStorage.getUser()){
-      this.router.navigate(['action/borrows'])
-    }
+  constructor(private resetPassService: ResetPasswordService, private router: Router ,private authService: AuthService, private tokenStorage: TokenStorageService, public formBuilder: FormBuilder) {
+    var j = new String(this.tokenStorage.getToken());
+        if(!j.localeCompare("INTERNAL_SERVER_ERROR")){
+          this.router.navigate(['action/borrows'])
+        }
    }
 
+   form: FormGroup = this.formBuilder.group({
+     email: [''],
+     password: [''],
+     emailSend : ['']
+   })
+
+   submitted = false;
+
   ngOnInit(): void {
-    if (this.tokenStorage.getToken()) {
-      this.isLoggedIn  = true;
-      this.roles = this.tokenStorage.getUser().roles;
-    }
+    // if (this.tokenStorage.getToken()) {
+    //   this.isLoggedIn  = true;
+    //   this.roles = this.tokenStorage.getUser().roles;
+    // }
   }
 
   onSubmit(): void {
 
-    this.authService.login(this.form).subscribe(
-      data => {
-        this.tokenStorage.saveToken(data.accessToken);
-        this.tokenStorage.saveUser(data);
+    this.submitted =  true;
 
-        this.isLoginFailed = false;
-        this.isLoggedIn = true;
-        this.roles = this.tokenStorage.getUser().roles;
+    if(this.form.invalid){
+      return ;
+    }
+      this.authService.login(this.form.value).subscribe(
+        data => {
+          this.tokenStorage.saveToken(data.token);
+          this.tokenStorage.saveUser(data);
+          this.roles = this.tokenStorage.getUser().roles;
 
-        // this.reloadPage();
-        this.router.navigate(['action/borrows']);
-      },
-      err => {
-        this.errorMessage = err.error.message;
-        this.isLoginFailed = true;
-      }
-    );
-
+          var j = new String(data);
+          if(data.message != null || !j.localeCompare("INTERNAL_SERVER_ERROR")){
+            window.localStorage.clear();
+            // this.reloadPage();
+          } else{
+            this.isLoggedIn = true;
+            this.router.navigate(['action/borrows']);
+          }
+        },
+        err => {
+          this.errorMessage = err.error.message;
+        }
+      );
   }
 
   reloadPage(): void {
     window.location.reload();
+  }
+
+  sendEmail(){
+    this.submitted =  true;
+    if(this.form.invalid){
+      return ;
+    }
+    this.checkForget = false;
+    this.resetPassService.sendMail(this.form.value.emailSend).subscribe(data => {
+      
+    });
+  }
+  checkForget = false;
+  forgotpass(){
+    this.checkForget = true;
   }
 }

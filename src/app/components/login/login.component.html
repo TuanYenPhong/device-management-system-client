@@ -1,4 +1,4 @@
-<div class="col-md-12 imagelogin" *ngIf="!isLoggedIn" >
+<!-- <div class="col-md-12 imagelogin" >
   <div class="card card-container">
     <img
       id="profile-img"
@@ -26,9 +26,25 @@
           role="alert"
           *ngIf="f.submitted && username.invalid"
         >
-          Nhập username
+          <div *ngIf="username.errors.required">Nhập username</div>
+          <div *ngIf="checkUsername">Username cần đúng định dạng abc@ominext.com</div>
+
         </div>
       </div>
+
+      <div class="form-group">
+        <label for ="email">Email</label>
+          <input type="text"
+            class="form-control"
+            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$"
+            id="email" name="email" ngModel #emailref="ngModel">
+          <div *ngIf="emailref.errors &&(emailref.touched || emailref.dirty)" class ="alert alert-danger">
+           <div [hidden]="!emailref.errors?.pattern">
+             Username cần nhập đúng địng dạng abc@ominext.com
+           </div>
+          </div>
+    </div>
+
       <div class="form-group">
         <label for="password">Password</label>
         <input
@@ -45,7 +61,7 @@
           role="alert"
           *ngIf="f.submitted && password.invalid"
         >
-          <div *ngIf="password.errors.required">Nhập mật khẩu</div>
+          <div *ngIf="password.errors.required">Nhập password</div>
           <div *ngIf="password.errors.minlength">
             Mật khẩu cần từ 6 ký tự trở lên
           </div>
@@ -58,12 +74,86 @@
         <div
           class="alert alert-danger"
           role="alert"
-          *ngIf="f.submitted && isLoginFailed"
+          *ngIf="isLoggedIn==false && f.submitted"
         >
-          Login fail: {{ errorMessage }}
-          Tài khoản hoặc mật khẩu không chính xác
+        Tài khoản hoặc mật khẩu không chính xác
         </div>
       </div>
     </form>
+  </div>
+</div> -->
+
+<div class="col-md-12 imagelogin">
+  <div class="card card-container">
+    <img
+      id="profile-img"
+      src="assets/img/brand/sygnet.svg"
+      class="profile-img-card"
+    />
+    <form name="form" [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-group" *ngIf="!checkForget">
+        <label for="email">Username</label>
+        <!-- <input  formControlName="username"/> -->
+        <input
+          name="email"
+          type="text"
+          formControlName="email"
+          class="form-control"
+          [ngClass]="{
+            'is-invalid': submitted && form.controls.email.errors
+          }"
+        />
+        <div
+          *ngIf="submitted && form.controls.email.errors" class="invalid-feedback"
+        >
+          <div *ngIf="form.controls.email.errors.required">Tên đăng nhập không được để trống</div>
+          <div *ngIf="form.controls.email.errors.email">
+            Tên đăng nhập cần theo định dạng abc@ominext.com
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" *ngIf="!checkForget">
+        <label for="password">Password</label>
+        <input type="password" class="form-control"
+        formControlName="password"
+        [ngClass]="{'is-invalid':submitted && form.controls.password.errors}" />
+        <div *ngIf="submitted && form.controls.password.errors" class="invalid-feedback">
+          <div *ngIf="form.controls.password.errors.required">Mật khẩu không được để chống</div>
+          <div *ngIf="form.controls.password.errors.minlength">Mật khẩu cần dài hơn 3 ký tự</div>
+        </div>
+
+      </div>
+
+      <div class="form-group" *ngIf="checkForget">
+        <label for="email">Nhập email để thay đổi mật khẩu</label>
+        <!-- <input  formControlName="username"/> -->
+        <input
+          name="email"
+          type="text"
+          formControlName="emailSend"
+          class="form-control"
+          [ngClass]="{
+            'is-invalid': submitted && form.controls.email.errors
+          }"
+        />
+        <div
+          *ngIf="submitted && form.controls.email.errors" class="invalid-feedback"
+        >
+          <div *ngIf="form.controls.email.errors.required">Tên email không được để trống</div>
+          <div *ngIf="form.controls.email.errors.email">
+            Tên email cần theo định dạng abc@ominext.com
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" *ngIf="!checkForget">
+        <button class="btn btn-primary btn-block">Đăng nhập</button>
+      </div>
+    </form>
+    <div class="form-group" *ngIf="checkForget">
+      <button (click)="sendEmail()" class="btn btn-primary btn-block">Gửi</button>
+    </div>
+    <p (click)= "forgotpass()" *ngIf="!checkForget" class="_centera">Quên mật khẩu?</p>
   </div>
 </div>

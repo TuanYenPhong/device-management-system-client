@@ -11,6 +11,7 @@ import { P500Component } from './views/error/500.component';
 import { LoginComponent } from './components/login/login.component';
 
 import {AuthGuard} from './authentication/_helpers/auth.guard';
+import {ResetPasswordComponent} from  './components/action/reset-password/reset-password.component';
 
 
 export const routes: Routes = [
@@ -38,6 +39,13 @@ export const routes: Routes = [
     component: LoginComponent,
     data: {
       title: 'Login Page'
+    }
+  },
+  {
+    path: 'reset-password/:token',
+    component: ResetPasswordComponent,
+    data: {
+      title: 'Reset pass'
     }
   },
   {

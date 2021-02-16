@@ -1,1 +1,261 @@
-<p>device-persion works!</p>
+<div>
+  <div class="card my-5">
+    <div class="card-body _scrollmenu">
+      <button
+        type="button"
+        class="btn btn-primary"
+        title="Thêm mượn trả"
+        (click)="checkCreate(); staticModal.show()"
+      >
+        <i class="fa fa-plus" aria-hidden="true"></i>
+      </button>
+
+      <label>Tìm kiếm: <input type="text" [(ngModel)]="query" /></label>
+
+      <table class="table table-bordered table-striped">
+        <tbody>
+          <tr>
+            <!-- <th scope="col"></th> -->
+            <th scope="col">Hành động</th>
+            <th scope="col">STT</th>
+            <th scope="col">Loại thiết bị</th>
+            <th scope="col">Mã thiết bị</th>
+            <th scope="col">Thông số mô tả</th>
+            <th scope="col">Thiết bị đi kèm</th>
+            <th scope="col">Người sử dụng</th>
+            <th scope="col">Phòng ban</th>
+            <th scope="col">Ngày cập nhật</th>
+          </tr>
+          <tr
+            class="active-row test"
+            *ngFor="
+              let d of dataDevice
+                | searchfilter: query
+                | paginate: { itemsPerPage: 8, currentPage: p };
+              let i = index
+            "
+          >
+            <!-- <input type="checkbox" class="check" id="{{ d.id }}" /> -->
+            <td class="text-center transparent">
+              <button (click)="deleteDevice(d.id)" title="Xóa">
+                <i class="fa fa-trash-o" style="font-size: 25px"></i>
+              </button>
+              <button
+                title="Chỉnh sửa"
+                (click)="
+                  checkEdit(); staticModal.show(); editBorrow(d.id)
+                "
+              >
+                <i
+                  class="fa fa-pencil-square-o"
+                  aria-hidden="true"
+                  style="font-size: 25px"
+                ></i>
+              </button>
+            </td>
+            <td>{{ (p + 1) * 8 + i + 1 - 16 }}</td>
+            <td>{{ d.idDevice }}</td>
+            <td>{{ d.typeDevice }}</td>
+            <td>{{ d.description }}</td>
+            <td>{{ d.deviceAttach }}</td>
+            <td>{{ d.namePerson }}</td>
+            <td>{{ d.nameDepartment }}</td>
+            <td>{{ d.modifiedDate }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <pagination-controls
+      previousLabel="Trước"
+      nextLabel="Sau"
+      (pageChange)="p = $event"
+    ></pagination-controls>
+  </div>
+
+  <!-- Form Chỉnh sửa phòng ban -->
+  <div
+    class="modal fade"
+    bsModal
+    #staticModal="bs-modal"
+    [config]="{ backdrop: 'static' }"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="dialog-static-name"
+  >
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 *ngIf="checkCreateEdit">Chỉnh sửa quản lý nhân sự</h3>
+          <h3 *ngIf="!checkCreateEdit">Tạo mới quản lý nhân sự</h3>
+        </div>
+        <div class="modal-body">
+          <div class="_editModal col-md-9">
+            <form
+              [formGroup]="form"
+              (ngSubmit)="taoDP()"
+
+            >
+              <fieldset>
+                <div class="row">
+                  <div class="col form-group">
+                    <label for="codeDevice">
+                      Mã thiết bị <span class="req">* </span>
+                    </label>
+                    <div class="custom-typeahead">
+                      <input
+                        required
+                        class="form-control"
+                        formControlName="idDevice"
+                        [ngClass]="{
+                          'is-invalid': submitted && f.idDevice.errors
+                        }"
+                        placeholder="Nhập mã thiết bị..."
+                        value="{{ device.idDevice }}"
+                      />
+
+                      <div
+                        *ngIf="submitted && f.idDevice.errors"
+                        class="invalid-feedback"
+                      >
+                        <div *ngIf="f.idDevice.errors.required">
+                          Cần nhập mã thiết bị
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col form-group">
+                    <label for="codeDevice">
+                      Loại thiết bị <span class="req">* </span>
+                    </label>
+                    <div class="custom-typeahead">
+                      <input
+                        required
+                        class="form-control"
+                        formControlName="typeDevice"
+                        [ngClass]="{
+                          'is-invalid': submitted && f.typeDevice.errors
+                        }"
+                        placeholder="Nhập loại thiết bị..."
+                        value="{{ device.typeDevice }}"
+                      />
+
+                      <div
+                        *ngIf="submitted && f.typeDevice.errors"
+                        class="invalid-feedback"
+                      >
+                        <div *ngIf="f.typeDevice.errors.required">
+                          Cần nhập Loại thiết bị
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col form-group">
+                    <label for="codeDevice">
+                      Thiết bị đi kèm
+                    </label>
+                    <div class="custom-typeahead">
+                      <input
+                        required
+                        class="form-control"
+                        formControlName="deviceAttach"
+                        [ngClass]="{
+                          'is-invalid': submitted && f.deviceAttach.errors
+                        }"
+                        placeholder="Nhập thiết bị đi kèm..."
+                        value="{{ device.deviceAttach }}"
+                      />
+
+                      <div
+                        *ngIf="submitted && f.deviceAttach.errors"
+                        class="invalid-feedback"
+                      >
+                        <div *ngIf="f.deviceAttach.errors.required">
+                          Cần nhập thiết bị đi kèm
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col form-group">
+                    <label for="Name">
+                      Người sử dụng <span class="req">* </span>
+                    </label>
+                    <div class="custom-typeahead">
+                      <input
+                        required
+                        [typeahead]="listUser"
+                        [typeaheadMinLength]="0"
+                        typeaheadOptionField="listUser.name"
+                        typeaheadGroupField="listUser.region"
+                        class="form-control"
+                        formControlName="dpUser"
+                        [ngClass]="{
+                          'is-invalid': submitted && f.dpUser.errors
+                        }"
+                        placeholder="Tìm kiếm người sử dụng ..."
+                        value="{{ device.namePerson }}"
+                      />
+                      <div
+                        *ngIf="submitted && f.dpUser.errors"
+                        class="invalid-feedback"
+                      >
+                        <div *ngIf="f.dpUser.errors.required">
+                          Cần nhập người sử dụng
+                        </div>
+                        <div *ngIf="f.dpUser.errors.required == null && f.dpUser.errors.incorrect == true">
+                          Nhân viên không có sẵn
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label class="col-md-6 col-form-label" for="textarea-input"
+                    >Thông số mô tả thiết bị</label
+                  >
+                  <div class="col-md-12">
+                    <textarea
+                      name="resonAdd"
+                      formControlName="description"
+                      rows="6"
+                      cols="50"
+                      class="form-control"
+                      placeholder="Nhập thông số mô tả thiết bị..."
+                      value="{{ device.description }}"
+                    ></textarea>
+                  </div>
+                </div>
+                <div class="form-group action" *ngIf="!checkCreateEdit">
+                  <input class="btn btn-primary" type="submit" value="Lưu" />
+                  <input
+                    class="btn btn-danger"
+                    type="reset"
+                    value="Hủy"
+                    (click)="staticModal.hide(); resetForm()"
+                  />
+                </div>
+              </fieldset>
+            </form>
+          </div>
+        </div>
+        <div class="modal-body _actionModel" *ngIf="checkCreateEdit">
+          <button type="button" class="btn btn-primary" (click)="changeEdit()">
+            Lưu
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger"
+            (click)="staticModal.hide()"
+          >
+            Hủy
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

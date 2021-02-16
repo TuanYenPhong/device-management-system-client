@@ -5,6 +5,8 @@ import {FormsModule} from '@angular/forms';
 
 import { authInterceptorProviders } from './_helpers/auth.interceptor';
 
+import {errIn} from './_helpers/error-handler.interceptor';
+
 @NgModule({
   imports: [
     CommonModule,
@@ -13,7 +15,7 @@ import { authInterceptorProviders } from './_helpers/auth.interceptor';
   declarations:[
 
   ],
-  providers: [authInterceptorProviders]
+  providers: [authInterceptorProviders, errIn]
 })
 
 export class AuthenModule {}

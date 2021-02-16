@@ -5,41 +5,44 @@
         <i class="fa fa-plus" aria-hidden="true"></i>
       </button>
 
-      <label>Search: <input type="text" [(ngModel)]="query" /></label>
+      <label>Tìm kiếm: <input type="text" [(ngModel)]="query" /></label>
 
       <table class="table table-bordered table-striped">
         <tbody>
           <tr>
             <!-- <th scope="col"></th> -->
-            <th scope="col">No</th>
-            <th scope="col">Username</th>
-            <th scope="col">Password</th>
-            <th scope="col">Fullname</th>
+            <th scope="col">STT</th>
+            <th scope="col">Tên tài khoản</th>
+            <th scope="col">Tên đầy đủ</th>
+            <th scope="col">Phòng ban</th>
+            <th scope="col">Vai trò</th>
+            <th scope="col">Người tạo</th>
+            <th scope="col">Hành động</th>
           </tr>
-          <!-- <tr
+          <tr
             class="active-row"
             *ngFor="
-              let d of dataBorrow
+              let d of dataUser
                 | searchfilter: query
                 | paginate: { itemsPerPage: 4, currentPage: p };
               let i = index
             "
           >
-
-            <td>{{((p + 1) * 4 + i + 1)-8}}</td>
-            <td>{{ d.idDevice }}</td>
-            <td>{{ d.typeDevice }}</td>
-            <td>{{ d.description }}</td>
-            <td>{{ d.nameBorrow }}</td>
-            <td>{{ d.reson }}</td>
-            <td>{{ d.dateBorrow }}</td>
-            <td>{{ d.dateReturn }}</td>
-
+            <td>{{ (p + 1) * 4 + i + 1 - 8 }}</td>
+            <td>{{ d.username }}</td>
+            <td>{{ d.fullname }}</td>
+            <td>{{ d.userDepartment }}</td>
+            <td>{{ d.roles }}</td>
+            <td>{{ d.createBy }}</td>
             <td class="text-center">
-              <button >
+              <button
+                *ngIf="d.roles != 'ROLE_ADMIN'"
+                (click)="deleteUser(d.id)"
+              >
                 <i class="fa fa-trash-o" style="font-size: 25px"></i>
               </button>
-              <button (click)="staticModal.show();">
+              <!-- <button (click)="staticModal.show()"> -->
+              <button>
                 <i
                   class="fa fa-pencil-square-o"
                   aria-hidden="true"
@@ -47,11 +50,15 @@
                 ></i>
               </button>
             </td>
-          </tr> -->
+          </tr>
         </tbody>
       </table>
     </div>
-    <pagination-controls (pageChange)="p = $event"></pagination-controls>
+    <pagination-controls
+      previousLabel="Trước"
+      nextLabel="Sau"
+      (pageChange)="p = $event"
+    ></pagination-controls>
   </div>
 
   <!-- Form Chỉnh sửa phòng ban -->
@@ -70,15 +77,14 @@
           <h3>Chỉnh sửa mượn trả</h3>
         </div>
         <div class="modal-body">
-            <div class="_editModal col-md-9">
-              <form>
-                <fieldset>
-                  <div class="row">
+          <div class="_editModal col-md-9">
+            <form>
+              <fieldset>
+                <div class="row">
                   <div class="form-group col">
                     <label for="Name"
                       ><span class="req">* </span> Loại thiết bị:
                     </label>
-
                   </div>
 
                   <div class="form-group col">
@@ -88,62 +94,51 @@
                     <!-- <p>{{statesComplex[0].id == groupSelected}}</p> -->
                     <!-- <p>{{dpUser | json}}</p> -->
                     <div class="custom-typeahead">
-
                       <!-- <div *ngIf="dp.name !== dpUser" class="alert alert-danger">
                         Cần nhập chính xác theo mẫu không thì chương trình sẽ bị lỗi
                     </div> -->
                     </div>
                   </div>
-                  </div>
+                </div>
 
-                  <div class="row">
-                    <div class="form-group col">
-                      <label class="col-form-label" for="date-input"
-                        >Ngày mượn</label
-                      >
-                      <div>
-
-                      </div>
-                    </div>
-
-                    <div class="form-group col">
-                      <label class="col-form-label" for="date-input"
-                        >Ngày trả</label
-                      >
-                      <div>
-
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="row">
+                <div class="row">
                   <div class="form-group col">
-                    <label for="website">Status:</label>
-                    <div >
-
+                    <label class="col-form-label" for="date-input"
+                      >Ngày mượn</label
+                    >
+                    <div></div>
                   </div>
+
+                  <div class="form-group col">
+                    <label class="col-form-label" for="date-input"
+                      >Ngày trả</label
+                    >
+                    <div></div>
                   </div>
                 </div>
 
-                  <div class="form-group row">
-
-                    <label class="col-md-3 col-form-label" for="textarea-input"
-                      >Lý do mượn</label
-                    >
-                    <div class="col-md-9">
-
-                    </div>
+                <div class="row">
+                  <div class="form-group col">
+                    <label for="website">Status:</label>
+                    <div></div>
                   </div>
+                </div>
 
-                </fieldset>
-              </form>
-            </div>
+                <div class="form-group row">
+                  <label class="col-md-3 col-form-label" for="textarea-input"
+                    >Lý do mượn</label
+                  >
+                  <div class="col-md-9"></div>
+                </div>
+              </fieldset>
+            </form>
+          </div>
         </div>
         <div class="modal-body _actionModel">
           <button
             type="button"
             class="btn btn-primary"
-            (click)="staticModal.hide();"
+            (click)="staticModal.hide()"
           >
             Yes
           </button>
@@ -162,72 +157,84 @@
 
 <!-- Form Thêm phòng ban -->
 <div class="container _editForm" [hidden]="!formHidden">
-  <!-- <div class="row">-->
   <div class="col-md-9">
     <form (keydown.enter)="$event.preventDefault()">
-      <p>Nhập quản lý mượn trả</p>
+      <p>Tạo tài khoản cho nhân viên</p>
       <fieldset>
         <div class="row">
           <div class="col form-group">
-            <label for="Name"><span class="req">* </span> Mã thiết bị </label>
-
+            <label for="Name"><span class="req">* </span>Tên đăng nhập</label>
+            <input
+              [(ngModel)]="user.username"
+              required
+              type="text"
+              name="username"
+              class="form-control phone"
+              placeholder="Nhập username để tạo mới..."
+            />
           </div>
 
           <div class="col form-group">
+            <label for="Name"><span class="req">* </span>Mật khẩu </label>
+            <input
+              [(ngModel)]="user.password"
+              required
+              type="text"
+              name="pass"
+              class="form-control phone"
+              placeholder="Nhập mật khẩu tạo mới..."
+            />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col form-group">
             <label for="Name"
-              ><span class="req">* </span> Người / Phòng ban mượn:
+              ><span class="req">* </span> Phòng ban của nhân viên
             </label>
             <!-- <p>{{statesComplex[0].id == groupSelected}}</p> -->
             <!-- <p>{{dpUser | json}}</p> -->
             <div class="custom-typeahead">
-
-              <!-- <div *ngIf="dp.name !== dpUser" class="alert alert-danger">
-                Cần nhập chính xác theo mẫu không thì chương trình sẽ bị lỗi
-            </div> -->
+              <input
+                required
+                [(ngModel)]="dpUser"
+                [ngModelOptions]="{ standalone: true }"
+                [typeahead]="dp"
+                typeaheadOptionField="dp.name"
+                typeaheadGroupField="dp.region"
+                class="form-control"
+                value="{{ dpUser }}"
+                placeholder="Tìm kiếm phòng ban nhân viên ..."
+              />
             </div>
           </div>
-        </div>
-
-        <!-- <div class="form-group">
-            <label for="Name"
-              ><span class="req">* </span> Người / Phòng ban mượn:
-            </label>
-            <input
-              required
-              type="text"
-              [(ngModel)]="borrow.nameBorrow"
-              name="nameBorrowAdd"
-              class="form-control phone"
-              maxlength="28"
-              placeholder="Nhập người / phòng ban mượn..."
-            />
-          </div> -->
-
-        <div class="row">
-          <div class="col form-group">
-            <label class="col-form-label" for="date-input"
-              ><span class="req">* </span> Ngày mượn</label
-            >
-
-
-          </div>
 
           <div class="col form-group">
-            <label class="col-form-label" for="date-input"
-              ><span class="req">* </span> Ngày trả</label
+            <label for="Name"><span class="req">* </span>Quyền hạn </label>
+            <select
+              [(ngModel)]="defaultRole.type"
+              class="form-control"
+              name="role"
             >
-
-
+              <option *ngFor="let r of roles" [(ngValue)]="r.id">
+                {{ r.nameRole }}
+              </option>
+            </select>
           </div>
         </div>
 
-        <div class="form-group row">
-          <label class="col-md-3 col-form-label" for="textarea-input"
-            >Lý do mượn</label
+        <div class="form-group">
+          <label for="Name"
+            ><span class="req">* </span>Tên đầy đủ của nhân viên</label
           >
-          <div class="col-md-9">
-
-          </div>
+          <input
+            [(ngModel)]="user.fullname"
+            required
+            type="text"
+            name="fullname"
+            class="form-control phone"
+            placeholder="Nhập tên đầy đủ nhân viên..."
+          />
         </div>
 
         <div class="form-group action">
@@ -236,7 +243,7 @@
             type="submit"
             name="submit_reg"
             value="Save"
-
+            (click)="createUser()"
           />
           <input
             class="btn btn-success"

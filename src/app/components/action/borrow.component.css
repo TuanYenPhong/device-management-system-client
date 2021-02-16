@@ -1,7 +1,7 @@
 .ngx-pagination {
-  padding-left: 0px !important;
+  /* padding-left: 0px !important; */
   margin: auto !important;
-  width: 50% !important;
+  width: 30% !important;
   padding: 10px !important;
 }
 
@@ -49,10 +49,6 @@ button{
   align-items: center;
 } */
 
-._editModal form{
-  /* margin-left: 25%; */
-  /* padding: 10px; */
-}
 
 .modal-body{
   margin: auto;
@@ -80,4 +76,12 @@ p{
 ._actionModel{
   margin: auto;
   width: 20%;
+}
+
+.transparent button{
+  background: transparent !important;
+}
+
+label span{
+  color: red;
 }

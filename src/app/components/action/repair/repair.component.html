@@ -1,39 +1,38 @@
 <div [hidden]="!tableHidden">
   <div *ngIf="!checkModal" class="card my-5">
     <div class="card-body _scrollmenu">
-
-      <label>Search: <input type="text" [(ngModel)] = "query"></label>
-      <button
-      type="button"
-      class="btn btn-primary"
-      (click)="hiddenForm()">
+      <button type="button" title="Thêm sửa chữa" class="btn btn-primary" (click)="checkCreate();staticModal.show();checkModal = true">
         <i class="fa fa-plus" aria-hidden="true"></i>
       </button>
+
+      <label>Tìm kiếm: <input type="text" [(ngModel)]="query" /></label>
 
       <table class="table table-bordered table-striped">
         <tbody>
           <tr>
-            <th scope="col">Action</th>
+            <th scope="col">Hành động</th>
             <th scope="col">STT</th>
-            <th scope="col">Loại device</th>
-            <th scope="col">Mã device</th>
-            <th scope="col">Nội dung</th>
-            <th scope="col">Ngày sửa</th>
-            <th scope="col">Ngày hoàn thành</th>
+            <th scope="col">Loại thiết bị</th>
+            <th scope="col">Mã thiết bị</th>
+            <th scope="col">Thông số thiết bị</th>
             <th scope="col">Trạng thái</th>
+            <th scope="col">Nội dung cụ thể</th>
+            <th scope="col">Ngày thực hiện</th>
+            <th scope="col">Ngày hoàn thành</th>
           </tr>
           <tr
             *ngFor="
-              let d of dataRepair | searchfilter: query
-                | paginate: { itemsPerPage: 4, currentPage: p };
+              let d of dataRepair
+                | searchfilter: query
+                | paginate: { itemsPerPage: 8, currentPage: p };
               let i = index
             "
           >
-          <td class="text-center">
-            <button (click)="deleteRepair(d.id)">
+          <td class="text-center transparent">
+            <button title="Xóa" (click)="deleteRepair(d.id)">
               <i class="fa fa-trash-o" style="font-size: 25px"></i>
             </button>
-            <button (click)="staticModal.show();editRepair(d.id)">
+            <button title="Chỉnh sửa" (click)="checkEdit();staticModal.show(); editRepair(d.id)">
               <i
                 class="fa fa-pencil-square-o"
                 aria-hidden="true"
@@ -41,213 +40,270 @@
               ></i>
             </button>
           </td>
-            <td></td>
-            <td>{{d.entities.typeDevice}}</td>
-            <td>{{d.entities.codeDevice}}</td>
-            <td>{{d.description}}</td>
-            <td>{{d.dateRepair}}</td>
-            <td>{{d.dateFinish}}</td>
-            <td>{{ status[d.status-1].namestatus }}</td>
+            <td>{{ (p + 1) * 8 + i + 1 - 16 }}</td>
+            <td>{{ d.entities.typeDevice }}</td>
+            <td>{{ d.entities.codeDevice }}</td>
+            <td>{{ d.entities.description }}</td>
+            <td>{{ status[d.status - 1].namestatus }}</td>
+            <td>{{ d.description }}</td>
+            <td>{{ d.dateRepair }}</td>
+            <td>{{ d.dateFinish }}</td>
           </tr>
         </tbody>
       </table>
     </div>
-    <pagination-controls (pageChange)="p = $event"></pagination-controls>
+
+    <pagination-controls
+      previousLabel="Trước"
+      nextLabel="Sau"
+      (pageChange)="p = $event"
+    ></pagination-controls>
   </div>
-
-
 </div>
 
 <div
-    class="modal fade"
-    bsModal
-    #staticModal="bs-modal"
-    [config]="{ backdrop: 'static' }"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="dialog-static-name"
-  >
-    <div *ngIf="checkModal" class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>Chỉnh sửa thiết bị sửa chữa</h3>
-        </div>
-        <div class="modal-body">
-            <div class="col-md-9">
-              <form>
-                <fieldset>
-                  <div class="row">
-                  <div class="col form-group">
-                    <label for="Name"
-                      ><span class="req">* </span> Code device:
-                    </label>
-
-                    <input
-                      [(ngModel)]="groupSelected"
-                      [typeahead]="device"
-                      typeaheadOptionField="codeDevice"
-                      value="{{groupSelected}}"
-                      [ngModelOptions]="{standalone: true}"
-                      class="form-control"
-                  />
-                  </div>
-                  <!-- <div class="form-group">
-                    <label for="Name"
-                      ><span class="req">* </span> Code device:
-                    </label>
-                    <input
-                    required
-                    type="text"
-                    [(ngModel)]="repair.entities.codeDevice"
-                    name="codeDevice"
-                    id="name"
-                    class="form-control phone"
-                    maxlength="28"
-                    placeholder="Enter your code device..."
-                  />
-                </div> -->
+  class="modal fade"
+  bsModal
+  #staticModal="bs-modal"
+  [config]="{ backdrop: 'static' }"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="dialog-static-name"
+>
+  <div *ngIf="checkModal" class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Chỉnh sửa thiết bị sửa chữa</h3>
+      </div>
+      <div class="modal-body">
+        <div class="col-md-9">
+          <form [formGroup]="form"
+          (ngSubmit)="createRepair()"
+          (keydown.enter)="$event.preventDefault()">
+            <fieldset>
+              <div class="row">
                 <div class="col form-group">
-                  <label for="website">Status:</label>
-                  <select
-                    [(ngModel)]="repair.status"
+                  <label for="Name">Mã thiết bị <span style="color: red;" class="req">*</span> </label>
+                  <div class="custom-typeahead">
+                    <input
+                      #forcus
+                      formControlName="groupSelected"
+                      [typeahead]="device"
+                      [typeaheadMinLength]="0"
+                      typeaheadOptionField="codeDevice"
+                      value="{{ groupSelected }}"
+                      class="form-control"
+                      [ngClass]="{
+                        'is-invalid': submitted && form.controls.groupSelected.errors
+                      }"
+                    />
+                    <div
+                      *ngIf="submitted && form.controls.groupSelected.errors"
+                      class="invalid-feedback"
+                    >
+                      <div *ngIf="form.controls.groupSelected.errors.required">
+                        Cần nhập mã thiết bị
+                      </div>
+                      <div *ngIf="form.controls.groupSelected.errors.required == null && form.controls.groupSelected.errors.incorrect == true">
+                        Mã thiết bị không có sẵn
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col form-group">
+                  <label for="website">Trạng thái <span style="color: red;" class="req">*</span></label>
+                  <select [(ngModel)]="defaultStatus.type"
                     [ngModelOptions]="{standalone: true}"
                     class="form-control"
                     name="status"
+                    [ngClass]="{
+                      'is-invalid': submitted && form.controls.status.errors
+                    }"
                   >
-                    <option
-                      *ngFor="let s of status"
-
-                      [(ngValue)]="s.id"
-                    >
+                    <option *ngFor="let s of status" [(ngValue)]="s.id">
                       {{ s.namestatus }}
                     </option>
                   </select>
+                  <div
+                    *ngIf="submitted && form.controls.status.errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="form.controls.status.errors.required">
+                      Cần chọn trạng thái sửa chữa
+                    </div>
+                  </div>
                 </div>
-
               </div>
-
               <div class="row">
                 <div class="col form-group">
-                    <label for="date-input"
-                      >Date Repair</label
-                    >
-
-                      <input
-                        [ngModel]="repair.dateRepair | date: 'yyyy-MM-dd'"
-                        (ngModelChange)="repair.dateRepair = $event"
-                        class="form-control"
-                        type="date"
-                        name="dateRepair"
-                        placeholder="date"
-                      />
-
+                  <label for="date-input">Ngày thực hiện</label>
+                  <div>
+                    <input
+                      formControlName="dateRepair"
+                      class="form-control"
+                      id="dateRepair"
+                      type="date"
+                      name="dateRepair"
+                      placeholder="date"
+                      [ngClass]="{
+                        'is-invalid': submitted && form.controls.dateRepair.errors
+                      }"
+                    />
+                    <div
+                    *ngIf="submitted && form.controls.dateRepair.errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="form.controls.dateRepair.errors.required">
+                      Cần chọn trạng thái sửa chữa
+                    </div>
+                  </div>
+                  </div>
                 </div>
 
                 <div class="col form-group">
-                  <label for="date-input"
-                    >Date Finish</label
-                  >
-
+                  <label for="date-input">Ngày hoàn thành</label>
+                  <div>
                     <input
-                      [ngModel]="repair.dateFinish | date: 'yyyy-MM-dd'"
-                      (ngModelChange)="repair.dateFinish = $event"
+                      #forcus
+                      formControlName="dateFinish"
                       class="form-control"
+                      id="dateFinish"
                       type="date"
                       name="dateFinish"
                       placeholder="date"
+                      [ngClass]="{
+                        'is-invalid': submitted && form.controls.dateFinish.errors
+                      }"
                     />
-
-              </div>
-            </div>
-
-                  <div class="form-group row">
-                    <label class="col-md-3 col-form-label" for="textarea-input"
-                      >Content</label
-                    >
-                    <div class="col-md-9">
-                      <textarea
-                        [(ngModel)]="repair.description"
-                        id="textarea-input"
-                        name="textarea-input"
-                        rows="9"
-                        class="form-control"
-                        placeholder="Content.."
-                      ></textarea>
+                    <div
+                    *ngIf="submitted && form.controls.dateFinish.errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="form.controls.dateFinish.errors.required">
+                      Cần chọn ngày hoàn thành
+                    </div>
+                    <div *ngIf="form.controls.dateFinish.errors.required == null && form.controls.dateFinish.errors.incorrect == true">
+                      Ngày hoàn thành cần lớn hơn ngày thực hiện
                     </div>
                   </div>
-                </fieldset>
-              </form>
-            </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="textarea-input">Nội dung cụ thể</label>
+                <div>
+                  <textarea
+                    formControlName="description"
+                    id="textarea-input"
+                    name="textarea-input"
+                    rows="9"
+                    class="form-control"
+                    placeholder="Nhập nội dung cụ thể..."
+                  ></textarea>
+                </div>
+              </div>
 
+              <div class="form-group action" *ngIf="!checkCreateEdit">
+                <input class="btn btn-primary" type="submit" value="Lưu" />
+                <input
+                  class="btn btn-danger"
+                  type="reset"
+                  value="Hủy"
+                  (click)="staticModal.hide(); resetForm();decline()"
+                />
+              </div>
+            </fieldset>
+          </form>
         </div>
-        <div class="modal-body _actionModel">
-          <button
-            type="button"
-            class="btn btn-primary"
-            (click)="staticModal.hide();changeEdit()"
-          >
-            Yes
-          </button>
-          <button
-            type="button"
-            class="btn btn-danger"
-            (click)="staticModal.hide();decline()"
-          >
-            No
-          </button>
-        </div>
+      </div>
+      <div class="modal-body _actionModel" *ngIf="checkCreateEdit">
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="staticModal.hide(); changeEdit()"
+        >
+          Lưu
+        </button>
+        <button
+          type="button"
+          class="btn btn-danger"
+          (click)="staticModal.hide(); decline()"
+        >
+          Hủy
+        </button>
       </div>
     </div>
   </div>
+</div>
 
 <!-- Form Thêm sửa chữa  -->
 <div class="container _editForm" [hidden]="!formHidden">
   <!-- <div class="row"> -->
-    <div class="col-md-9">
-      <form (keydown.enter)="$event.preventDefault()">
-        <p>Nhập quản lý sửa chữa</p>
-        <fieldset>
+  <div class="col-md-9">
+    <form
+      [formGroup]="form"
+      (ngSubmit)="createRepair()"
+      (keydown.enter)="$event.preventDefault()"
+    >
+      <p>Nhập quản lý sửa chữa</p>
+      <fieldset>
         <div class="row">
           <div class="col form-group">
-            <label for="Name"
-              ><span class="req">* </span> Code Device:
-            </label>
-
-            <input
-                      [(ngModel)]="groupSelected"
-                      [typeahead]="device"
-                      typeaheadOptionField="codeDevice"
-                      value="{{groupSelected}}"
-                      [ngModelOptions]="{standalone: true}"
-                      class="form-control"
-            />
-
+            <label for="Name">Mã thiết bị <span style="color: red;" class="req">*</span> </label>
+            <div class="custom-typeahead">
+              <input
+                formControlName="groupSelected"
+                [typeahead]="device"
+                [typeaheadMinLength]="0"
+                typeaheadOptionField="codeDevice"
+                value="{{ groupSelected }}"
+                class="form-control"
+                [ngClass]="{
+                  'is-invalid': submitted && form.controls.groupSelected.errors
+                }"
+              />
+              <div
+                *ngIf="submitted && form.controls.groupSelected.errors"
+                class="invalid-feedback"
+              >
+                <div *ngIf="form.controls.groupSelected.errors.required">
+                  Cần nhập mã thiết bị
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="col form-group">
-            <label for="website">Status:</label>
+            <label for="website">Trạng thái <span style="color: red;" class="req">*</span></label>
             <select
-              [(ngModel)]="repair.status"
+              formControlName="status"
               class="form-control"
               name="status"
+              [ngClass]="{
+                'is-invalid': submitted && form.controls.status.errors
+              }"
             >
-              <option
-                *ngFor="let s of status"
-                [(ngValue)]="s.id"
-              >
+              <option *ngFor="let s of status" [(ngValue)]="s.id">
                 {{ s.namestatus }}
               </option>
             </select>
+            <div
+              *ngIf="submitted && form.controls.status.errors"
+              class="invalid-feedback"
+            >
+              <div *ngIf="form.controls.status.errors.required">
+                Cần chọn trạng thái sửa chữa
+              </div>
+            </div>
           </div>
         </div>
         <div class="row">
           <div class="col form-group">
-            <label for="date-input"
-              >Date repair:</label
-            >
+            <label for="date-input">Ngày sửa chữa</label>
             <div>
               <input
-                [(ngModel)]="repair.dateRepair"
+                formControlName="dateRepair"
                 class="form-control"
                 id="dateRepair"
                 type="date"
@@ -258,12 +314,10 @@
           </div>
 
           <div class="col form-group">
-            <label for="date-input"
-              >Date finish:</label
-            >
+            <label for="date-input">Ngày hoàn thành</label>
             <div>
               <input
-                [(ngModel)]="repair.dateFinish"
+                formControlName="dateFinish"
                 class="form-control"
                 id="dateFinish"
                 type="date"
@@ -273,40 +327,30 @@
             </div>
           </div>
         </div>
-          <div class="form-group">
-            <label for="textarea-input"
-              >Content:</label
-            >
-            <div>
-              <textarea
-                [(ngModel)]="repair.description"
-                id="textarea-input"
-                name="textarea-input"
-                rows="9"
-                class="form-control"
-                placeholder="Content.."
-              ></textarea>
-            </div>
+        <div class="form-group">
+          <label for="textarea-input">Nội dung cụ thể</label>
+          <div>
+            <textarea
+              formControlName="description"
+              id="textarea-input"
+              name="textarea-input"
+              rows="9"
+              class="form-control"
+              placeholder="Nhập nội dung cụ thể..."
+            ></textarea>
           </div>
+        </div>
 
-          <div class="form-group action">
-            <input
-              class="btn btn-success"
-              type="submit"
-              name="submit_reg"
-              value="Save"
-              (click)="createRepair()"
-            />
-            <input
-              class="btn btn-success"
-              type="submit"
-              name="submit_reg"
-              value="Cancel"
-              (click)="cancelForm()"
-            />
-          </div>
-        </fieldset>
-      </form>
-    </div>
+        <div class="form-group action">
+          <input class="btn btn-primary" type="submit" value="Save" />
+          <input
+            class="btn btn-danger"
+            type="reset"
+            value="Cancel"
+            (click)="cancelForm()"
+          />
+        </div>
+      </fieldset>
+    </form>
   </div>
-
+</div>

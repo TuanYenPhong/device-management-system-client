@@ -1,9 +1,9 @@
-import { Component , TemplateRef } from '@angular/core';
-import { Router } from '@angular/router';
-import {Repair} from '../../../model/repair';
-import {RepairService} from '../../../service/actionservice/repair.service';
-import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
-import { analyzeAndValidateNgModules } from '@angular/compiler';
+import { Component,ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Repair } from '../../../model/repair';
+import { RepairService } from '../../../service/actionservice/repair.service';
+
 declare var swal: any;
 @Component({
   templateUrl: './repair.component.html',
@@ -14,11 +14,18 @@ export class RepairComponent {
 
   dataRepair: any;
   modalRef: BsModalRef;
-  constructor(public service: RepairService, private modalService: BsModalService) { }
+  constructor(public service: RepairService, public formBuilder: FormBuilder) { }
 
-  openModal(template: TemplateRef<any>) {
-    this.modalRef = this.modalService.show(template);
-  }
+  form : FormGroup =  this.formBuilder.group({
+    groupSelected: ['', Validators.required],
+    status: [''],
+    dateRepair: [new Date().toISOString().slice(0,10)],
+    description: [''],
+    dateFinish: ['', Validators.required],
+  })
+
+  submitted= false;
+
   query: any;
   p: number = 1;
   repair: Repair = new Repair();
@@ -27,13 +34,18 @@ export class RepairComponent {
   formHidden: boolean = false;
   checkModal:boolean = false;
   status: any = [{ id: 1, namestatus: "Sửa" },
-  { id: 2, namestatus: "Xong" }
+  { id: 2, namestatus: "Bảo hành" },
+  { id: 3, namestatus: "Nâng cấp" },
+  { id: 4, namestatus: "Đang xử lý" },
+  { id: 5, namestatus: "Xong" }
   ];
+
+  defaultStatus: {type: number} = {type : 1};
 
   today: string;
   index: number = 0;
   device: any;
-  groupSelected: string;
+  groupSelected: any;
 
   submitDelete(id: number){
     let resp = this.service.deleteRepair(id);
@@ -45,7 +57,7 @@ export class RepairComponent {
     resp.subscribe(() => {
       this.fetchData();
     });
-    if (this.dataRepair.length % 4 == 0) {
+    if (this.dataRepair.length % 8 == 0) {
       if (this.p > 1) {
         this.p--;
       }
@@ -72,36 +84,90 @@ export class RepairComponent {
       }
     })
   }
+  errorMess : any = [];
+
+  checkCreate() {
+    // console.log(new Date().toLocaleDateString())
+    this.errorMess = [];
+    this.groupSelected = '';
+    this.form = this.formBuilder.group({
+      groupSelected: ['', Validators.required],
+      status: [''],
+      dateRepair: [new Date().toISOString().slice(0,10)],
+      description: [''],
+      dateFinish: ['', Validators.required],
+    });
+  }
 
   submitCreate(){
-    // this.device.forEach(element => {
-      //   if(element.codeDevie == this.groupSelected){
-      //     this.repair.idDevice = element.id;
-      //   }
-      // });
-      this.repair.idDevice = this.device.find(i => i.codeDevice === this.groupSelected).id;
+    console.log(this.form.value.groupSelected);
+    this.device.forEach(e => {
+      if(e.codeDevice === this.form.value.groupSelected){
+        this.repair.idDevice = e.id;
+      }
+    });
+      this.repair.description = this.form.value.description;
+      this.repair.dateFinish = this.form.value.dateFinish;
+      this.repair.dateRepair = this.form.value.dateRepair;
+      this.repair.status = this.defaultStatus.type;
 
       let resp = this.service.createRepair(this.repair);
 
-      this.formHidden = false;
-      this.tableHidden = true;
       this.p = 1;
-
-      resp.subscribe(() => {
-        // this.dataRepair.unshift({
-        //   position: 0,
-        //   id: this.repair.id,
-        //   description: this.repair.description,
-        //   status: this.repair.status,
-        //   dateBorrow: this.repair.dateBorrow,
-        //   dateFinish: this.repair.dateFinish,
-        //   entities: this.repair.entities
-        // });
-        this.fetchData();
+      resp.subscribe((data) => {
+        this.errorMess = data;
       });
+
+      setTimeout(() => {
+        this.fetchData();
+        if(this.errorMess.length > 0){
+          swal.fire(
+            'Tạo thành công',
+            '',
+            'success'
+          )
+        }else{
+          swal.fire(
+            'Tạo không thành công',
+            '',
+            'error'
+          )
+        }
+      }, 70);
   }
 
+  @ViewChild("staticModal") static: any;
+  @ViewChild("forcus") forcus: any;;
   createRepair() {
+
+    let listDevice: any = [];
+    for(var i=0; i<this.device.length; i++){
+      listDevice[i] = this.device[i].codeDevice;
+    }
+
+    if(this.form.value.groupSelected != ""){
+      if(listDevice.includes(this.form.value.groupSelected) === false){
+        this.form.controls.groupSelected.setErrors({incorrect: true});
+      }
+    }
+
+    if(this.form.value.dateFinish != ""){
+      var dateR = new Date(this.form.value.dateFinish).toISOString().slice(0,10);
+    }
+
+    var dateB = new Date(this.form.value.dateRepair).toISOString().slice(0,10);
+
+    if(dateB > dateR){
+      this.form.controls.dateFinish.setErrors({incorrect: true});
+    }
+    this.submitted = true;
+
+    this.forcus.nativeElement.focus();
+
+    if(this.form.invalid){
+      return ;
+    }
+    this.static.hide();
     swal.fire({
       title: 'Bạn có muốn tạo mượn trả',
       icon: 'question',
@@ -112,11 +178,7 @@ export class RepairComponent {
     }).then((result) => {
       if (result.isConfirmed) {
         this.submitCreate();
-        swal.fire(
-          'Tạo thành công',
-          '',
-          'success'
-        )
+        this.submitted = false;
       }
     })
   }
@@ -155,19 +217,46 @@ export class RepairComponent {
     this.checkModal = false;
   }
 
+  checkCreateEdit = false;
+  checkEdit() {
+    this.checkCreateEdit = true;
+  }
+  resetForm() {
+    this.submitted = false;
+  }
+
 
   editRepair(id: number) {
-    this.service.getCurrentRepair(id).subscribe( data => {
-      this.repair = data[0];
+    this.service.getCurrentRepair(id).subscribe((repair : Repair) => {
+      this.repair = repair;
       this.checkModal = true;
-      this.groupSelected = data[0].entities.codeDevice;
+      this.groupSelected = repair.entities.codeDevice;
     })
 
-    // this.today = new Date().toISOString().split('T')[0];
+    this.service.getCurrentRepair(id).subscribe((repair: Repair) => {
+      this.repair = repair;
+      this.defaultStatus.type = repair.status;
+      this.form = this.formBuilder.group({
+        groupSelected: [repair.entities.codeDevice, Validators.required],
+        status: [this.defaultStatus.type = repair.status],
+        dateRepair: [repair.dateRepair],
+        description: [repair.description],
+        dateFinish: [repair.dateFinish, Validators.required],
+      });
+    });
   }
 
   submitEdit(){
-    this.repair.idDevice = this.device.find(i => i.codeDevice === this.groupSelected).id;
+    this.device.forEach(e => {
+      if(e.codeDevice === this.form.value.groupSelected){
+        this.repair.idDevice = e.id;
+      }
+    });
+      this.repair.description = this.form.value.description;
+      this.repair.dateFinish = this.form.value.dateFinish;
+      this.repair.dateRepair = this.form.value.dateRepair;
+      this.repair.status = this.defaultStatus.type;
+
     let resp = this.service.editRepair(this.repair);
     resp.subscribe((data) => {
       this.fetchData();
